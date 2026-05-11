@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Mahsa!</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d4a574;
+            --secondary: #c9a96e;
+            --accent: #e8c39e;
+            --gold: #c5a059;
+            --gold-light: #e8d5a3;
+            --cream: #faf6f0;
+            --champagne: #f5e6d3;
+            --rose: #e8c4c4;
+            --burgundy: #8b3a3a;
+            --deep-red: #a52a2a;
+            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #533483 100%);
+            --glass: rgba(255,255,255,0.08);
+            --glass-border: rgba(255,255,255,0.15);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            font-family: 'Lato', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: bgShift 20s ease infinite;
+        }
+        @keyframes bgShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .section {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .section.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .nav-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .nav-btn:hover { background: rgba(197,160,89,0.3); border-color: var(--gold); transform: scale(1.05); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-btn:active { transform: scale(0.95); }
+        .section-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            color: var(--gold-light);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: 2px;
+        }
+        .ornament {
+            font-size: 1.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin: 10px 0;
+            letter-spacing: 10px;
+        }
+        .birthday-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 4rem;
+            color: var(--gold-light);
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            text-align: center;
+            margin-bottom: 5px;
+            animation: fadeInUp 1.2s ease;
+        }
+        @keyframes fadeInUp {
+            0% { transform: translateY(30px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .birthday-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.85);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        .cake-emoji { font-size: 3.5rem; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(232,195,158,0.5)); }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .confetti {
+            position: fixed;
+            width: 8px; height: 8px;
+            background: var(--gold);
+            animation: confettiFall 6s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+        .confetti:nth-child(3n) { background: var(--rose); width: 6px; height: 6px; }
+        .confetti:nth-child(5n) { background: var(--gold-light); width: 10px; height: 10px; }
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .sparkle {
+            position: fixed;
+            width: 4px; height: 4px;
+            background: var(--gold-light);
+            border-radius: 50%;
+            animation: sparkle 2s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        .countdown-container { text-align: center; }
+        .countdown-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: var(--gold-light);
+            margin-bottom: 20px;
+        }
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .countdown-box {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(197,160,89,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .countdown-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .countdown-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            display: block;
+        }
+        .countdown-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        .target-date {
+            margin-top: 20px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.95rem;
+            background: rgba(0,0,0,0.2);
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(197,160,89,0.2);
+            font-family: 'Playfair Display', serif;
+        }
+        .timeline-container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--gold), var(--rose), var(--gold));
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+        }
+        .timeline-item:nth-child(odd) { flex-direction: row; }
+        .timeline-item:nth-child(even) { flex-direction: row-reverse; }
+        .timeline-node {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px; height: 18px;
+            background: var(--gold);
+            border: 3px solid var(--gold-light);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(197,160,89,0.6);
+        }
+        .timeline-content {
+            width: 45%;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(197,160,89,0.2);
+            border-radius: 16px;
+            padding: 15px;
+            margin: 0 5%;
+            transition: transform 0.3s;
+        }
+        .timeline-content:hover { transform: scale(1.02); border-color: rgba(197,160,89,0.4); }
+        .timeline-date {
+            font-size: 0.7rem;
+            color: var(--gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .timeline-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: white;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+        .timeline-location {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .timeline-slideshow {
+            width: 100%;
+            height: 150px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+            border: 1px solid rgba(197,160,89,0.2);
+        }
+        .timeline-slideshow img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0; left: 0;
+            opacity: 0;
+            transition: opacity 0.8s;
+        }
+        .timeline-slideshow img.active { opacity: 1; }
+        .slideshow-dots {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+        }
+        .slideshow-dot {
+            width: 6px; height: 6px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .slideshow-dot.active { background: var(--gold); border-color: var(--gold); }
+        #map {
+            width: 100%;
+            height: 60vh;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border: 2px solid rgba(197,160,89,0.3);
+        }
+        .map-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: var(--gold-light);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .map-legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(197,160,89,0.2);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: rgba(197,160,89,0.4); }
+        .stat-icon { font-size: 2rem; margin-bottom: 8px; }
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold-light);
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 5px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .stats-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: var(--gold-light);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .envelope-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, #f5e6d3, #e8d5a3);
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+            border: 2px solid var(--gold);
+        }
+        .envelope.open { transform: rotateX(180deg); }
+        .envelope-flap {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 50%;
+            background: linear-gradient(135deg, #e8d5a3, #d4a574);
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            transform-origin: top;
+            transition: transform 0.6s;
+            z-index: 10;
+        }
+        .envelope.open .envelope-flap { transform: rotateX(180deg); }
+        .envelope-body {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #f5e6d3, #e8d5a3);
+            border-radius: 0 0 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--burgundy);
+        }
+        .letter-content {
+            display: none;
+            background: #fffef5;
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin-top: 20px;
+            font-family: 'Playfair Display', serif;
+            line-height: 1.9;
+            color: #333;
+            position: relative;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid var(--gold);
+        }
+        .letter-content.show { display: block; animation: fadeIn 0.8s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .letter-signature {
+            margin-top: 30px;
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem;
+            color: var(--burgundy);
+            text-align: right;
+        }
+        .wax-seal {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            width: 50px; height: 50px;
+            background: var(--burgundy);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-light);
+            font-size: 1.2rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            border: 2px solid var(--gold);
+        }
+        .video-container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .video-wrapper {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(197,160,89,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-caption {
+            color: rgba(255,255,255,0.7);
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        .upload-btn {
+            background: rgba(197,160,89,0.2);
+            color: var(--gold-light);
+            border: 1px solid var(--gold);
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+            margin-top: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .upload-btn:hover { background: rgba(197,160,89,0.4); transform: scale(1.05); }
+        .upload-btn:active { transform: scale(0.95); }
+        #videoInput { display: none; }
+        .quiz-container {
+            width: 100%;
+            max-width: 600px;
+        }
+        .quiz-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: var(--gold-light);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .quiz-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .quiz-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        .question-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(197,160,89,0.2);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+        }
+        .question-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .options-grid {
+            display: grid;
+            gap: 10px;
+        }
+        .option-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(197,160,89,0.2);
+            color: rgba(255,255,255,0.9);
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.95rem;
+            text-align: left;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .option-btn:hover { background: rgba(197,160,89,0.15); border-color: rgba(197,160,89,0.4); }
+        .option-btn.selected { background: rgba(197,160,89,0.3); border-color: var(--gold); color: var(--gold-light); }
+        .option-btn.correct { background: rgba(46,204,113,0.3); border-color: #2ecc71; }
+        .option-btn.wrong { background: rgba(231,76,60,0.3); border-color: #e74c3c; }
+        .quiz-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .results-container {
+            display: none;
+            text-align: center;
+        }
+        .results-container.show { display: block; }
+        .score-circle {
+            width: 150px; height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--gold) 0% var(--score-percent), rgba(255,255,255,0.1) var(--score-percent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            position: relative;
+        }
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 120px; height: 120px;
+            background: var(--bg-gradient);
+            border-radius: 50%;
+        }
+        .score-text {
+            position: relative;
+            z-index: 1;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold-light);
+        }
+        .friend-comparison {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .friend-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(197,160,89,0.1);
+        }
+        .friend-name { color: rgba(255,255,255,0.9); font-weight: 700; }
+        .friend-score { color: var(--gold-light); font-weight: 700; font-family: 'Playfair Display', serif; }
+        .friend-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .friend-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+        @media (max-width: 480px) {
+            .birthday-title { font-size: 2.8rem; }
+            .countdown-number { font-size: 2rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .timeline-content { width: 80%; margin: 0 auto; }
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) { flex-direction: column; }
+            .timeline-line { left: 20px; }
+            .timeline-node { left: 20px; }
+            .nav-buttons { padding: 8px 12px; gap: 8px; }
+            .nav-btn { padding: 8px 14px; font-size: 11px; }
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(197,160,89,0.3); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div id="confetti-container"></div>
+    <div id="sparkle-container"></div>
+    <div class="section-indicator" id="sectionIndicator">1 / 8</div>
+
+    <div class="section active" id="section-0">
+        <div class="glass-card" style="text-align: center;">
+            <div class="ornament">&#10022; &#10022; &#10022;</div>
+            <div class="cake-emoji">&#127874;</div>
+            <h1 class="birthday-title">Happy Birthday<br>Mahsa!</h1>
+            <div class="ornament">&#10022; &#10022; &#10022;</div>
+            <p class="birthday-subtitle">Wishing you a day filled with love, laughter, and unforgettable moments.<br>You make every day brighter!</p>
+            <div style="margin-top: 20px; font-size: 1.3rem; letter-spacing: 8px;">
+                <span>&#127880;</span><span>&#127873;</span><span>&#127881;</span><span>&#127800;</span><span>&#10024;</span>
+            </div>
+            <p style="margin-top: 20px; color: rgba(255,255,255,0.7); font-size: 0.85rem; font-family: 'Playfair Display', serif;">
+                Born: May 12, 2003 (Monday) &nbsp;&bull;&nbsp; Turning <span id="ageDisplay"></span> today
+            </p>
+        </div>
+    </div>
+
+    <div class="section" id="section-1">
+        <div class="countdown-container glass-card">
+            <div class="ornament">&#10022; &#10022; &#10022;</div>
+            <h2 class="countdown-title">Countdown to Your Special Day</h2>
+            <div class="ornament">&#10022; &#10022; &#10022;</div>
+            <div class="countdown-grid">
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-days">00</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-hours">00</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-minutes">00</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="cd-seconds">00</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+            <div class="target-date">
+                &#128197; May 12, 2026 (Tuesday) at 10:00 AM &nbsp;&bull;&nbsp; &#127758; Tehran, Iran (GMT+3:30)
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="section-2">
+        <h2 style="font-family: 'Great Vibes', cursive; font-size: 2.5rem; color: var(--gold-light); margin-bottom: 5px;">Our Journey Together</h2>
+        <div class="ornament">&#10022; &#10022; &#10022;</div>
+        <p style="color: rgba(255,255,255,0.7); margin-bottom: 15px; font-size: 0.9rem; font-family: 'Playfair Display', serif;">Every moment with you is a treasure</p>
+        <div class="timeline-container" id="timelineContainer">
+            <div class="timeline-line"></div>
+        </div>
+    </div>
+
+    <div class="section" id="section-3">
+        <h2 class="map-title">Places We have Been Together</h2>
+        <div class="ornament">&#10022; &#10022; &#10022;</div>
+        <div id="map"></div>
+        <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background: #c5a059;"></div> First Date</div>
+            <div class="legend-item"><div class="legend-dot" style="background: #e8c39e;"></div> Trips</div>
+            <div class="legend-item"><div class="legend-dot" style="background: #e8c4c4;"></div> Special Moments</div>
+            <div class="legend-item"><div class="legend-dot" style="background: #a52a2a;"></div> Restaurants</div>
+        </div>
+    </div>
+
+    <div class="section" id="section-4">
+        <h2 class="stats-title">Our Love in Numbers</h2>
+        <div class="ornament">&#10022; &#10022; &#10022;</div>
+        <div class="stats-grid" id="statsGrid"></div>
+        <p style="color: rgba(255,255,255,0.6); margin-top: 15px; font-size: 0.85rem; text-align: center; font-family: 'Playfair Display', serif;">
+            Since <span id="firstDateDisplay"></span> &nbsp;&bull;&nbsp; With all my love
+        </p>
+    </div>
+
+    <div class="section" id="section-5">
+        <h2 style="font-family: 'Great Vibes', cursive; font-size: 2.5rem; color: var(--gold-light); margin-bottom: 5px;">A Letter For You</h2>
+        <div class="ornament">&#10022; &#10022; &#10022;</div>
+        <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 0.9rem; font-family: 'Playfair Display', serif;">Tap the envelope to open</p>
+        <div class="envelope-container">
+            <div class="envelope" id="envelope">
+                <div class="envelope-flap"></div>
+                <div class="envelope-body">&#128140;</div>
+            </div>
+            <div class="letter-content" id="letterContent">
+                <div class="wax-seal">&#10084;&#65039;</div>
+                <p style="font-size: 1.1rem; margin-bottom: 15px;">My Dearest Mahsa,</p>
+                <p>Happy Birthday to the most amazing person I know! Every day with you feels like a gift, and I am so grateful to have you in my life.</p>
+                <p>From our first meeting to all the adventures we have shared, each moment has been magical. You bring so much joy, laughter, and love into my world.</p>
+                <p>On this special day, I want you to know how much you mean to me. You are my sunshine, my best friend, and my greatest adventure.</p>
+                <p>Here is to many more birthdays together, countless memories, and a lifetime of love.</p>
+                <p style="margin-top: 20px;">With all my heart,</p>
+                <div class="letter-signature">Your Love &#10084;&#65039;</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="section-6">
+        <h2 style="font-family: 'Great Vibes', cursive; font-size: 2.5rem; color: var(--gold-light); margin-bottom: 5px;">A Special Video</h2>
+        <div class="ornament">&#10022; &#10022; &#10022;</div>
+        <div class="video-container">
+            <div class="video-wrapper">
+                <video controls poster="https://images.unsplash.com/photo-1530103862676-de3c9a59aa38?w=800&q=80">
+                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <p class="video-caption">Replace this video with your own special message for Mahsa</p>
+            <button class="upload-btn" id="uploadBtn">Upload Your Video</button>
+            <input type="file" id="videoInput" accept="video/*">
+        </div>
+    </div>
+
+    <div class="section" id="section-7">
+        <div class="quiz-container">
+            <h2 class="quiz-title">How Well Do You Know Mahsa?</h2>
+            <div class="ornament">&#10022; &#10022; &#10022;</div>
+            <div class="quiz-progress">
+                <div class="quiz-progress-bar" id="quizProgress" style="width: 0%"></div>
+            </div>
+            <div id="quizQuestions"></div>
+            <div class="quiz-nav" id="quizNav">
+                <button class="nav-btn" id="prevQBtn">Previous</button>
+                <button class="nav-btn" id="nextQBtn">Next</button>
+            </div>
+            <div class="results-container" id="resultsContainer">
+                <h3 style="color: white; font-size: 1.5rem; margin-bottom: 10px; font-family: 'Great Vibes', cursive;">Quiz Complete!</h3>
+                <div class="ornament">&#10022; &#10022; &#10022;</div>
+                <div class="score-circle" id="scoreCircle">
+                    <span class="score-text" id="scoreText">0/20</span>
+                </div>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px; font-family: 'Playfair Display', serif;">Let us see how your friends did compared to you!</p>
+                <div class="friend-comparison" id="friendComparison"></div>
+                <button class="nav-btn" id="restartBtn" style="margin-top: 20px;">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn">&#9664; Previous</button>
+        <button class="nav-btn" id="nextBtn">Next &#9654;</button>
+        <button class="nav-btn" id="homeBtn">&#127968; Home</button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            firstDate: '2022-06-15',
+            birthday: '2003-05-12',
+            targetDate: '2026-05-12T10:00:00+03:30',
+            // Friends answers - each friend has their answers array
+            // Format: { name, answers: [0,1,2,3,...] } where each is their chosen option index
+            friendAnswers: [
+                { name: 'Sarah', answers: [1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1] },
+                { name: 'Nina', answers: [1,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0] },
+                { name: 'Leila', answers: [1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,0,1,1] },
+                { name: 'Maryam', answers: [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1] },
+                { name: 'Parisa', answers: [1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1] },
+            ]
+        };
+
+        // ==================== TIMELINE DATA (20 PLACEHOLDER EVENTS) ====================
+        const timelineEvents = [
+            { date: '2022-06-15', title: 'Our First Meeting', location: 'Tehran, Iran', occasion: 'The day our story began', images: ['https://picsum.photos/400/300?random=1', 'https://picsum.photos/400/300?random=2'] },
+            { date: '2022-07-20', title: 'First Coffee Date', location: 'Cafe Naderi, Tehran', occasion: 'Coffee and endless conversations', images: ['https://picsum.photos/400/300?random=3'] },
+            { date: '2022-08-14', title: 'First Movie Together', location: 'Cinema Azadi, Tehran', occasion: 'Holding hands in the dark', images: ['https://picsum.photos/400/300?random=4', 'https://picsum.photos/400/300?random=5'] },
+            { date: '2022-09-05', title: 'First Trip Together', location: 'Shomal, Iran', occasion: 'Beach sunsets and stargazing', images: ['https://picsum.photos/400/300?random=6'] },
+            { date: '2022-10-31', title: 'Halloween Celebration', location: 'Home Party, Tehran', occasion: 'Costumes and laughter', images: ['https://picsum.photos/400/300?random=7', 'https://picsum.photos/400/300?random=8'] },
+            { date: '2022-12-25', title: 'First Christmas', location: 'Tehran, Iran', occasion: 'Warm winter memories', images: ['https://picsum.photos/400/300?random=9'] },
+            { date: '2023-02-14', title: "First Valentine's Day", location: 'Fancy Restaurant, Tehran', occasion: 'Roses and romance', images: ['https://picsum.photos/400/300?random=10', 'https://picsum.photos/400/300?random=11'] },
+            { date: '2023-03-20', title: 'Nowruz Celebration', location: 'Family Gathering', occasion: 'New year, new beginnings', images: ['https://picsum.photos/400/300?random=12'] },
+            { date: '2023-05-12', title: "Mahsa's 20th Birthday", location: 'Surprise Party, Tehran', occasion: 'Making her feel special', images: ['https://picsum.photos/400/300?random=13', 'https://picsum.photos/400/300?random=14'] },
+            { date: '2023-06-15', title: 'Our First Anniversary', location: 'Where It All Began', occasion: 'One year of us', images: ['https://picsum.photos/400/300?random=15'] },
+            { date: '2023-08-10', title: 'Summer Road Trip', location: 'Mazandaran, Iran', occasion: 'Windows down, music up', images: ['https://picsum.photos/400/300?random=16', 'https://picsum.photos/400/300?random=17'] },
+            { date: '2023-10-15', title: 'Concert Night', location: 'Milad Tower, Tehran', occasion: 'Dancing the night away', images: ['https://picsum.photos/400/300?random=18'] },
+            { date: '2023-12-31', title: "New Year's Eve", location: 'Countdown Party, Tehran', occasion: 'Kissing at midnight', images: ['https://picsum.photos/400/300?random=19', 'https://picsum.photos/400/300?random=20'] },
+            { date: '2024-02-14', title: "Second Valentine's", location: 'Rooftop Dinner, Tehran', occasion: 'Love under the stars', images: ['https://picsum.photos/400/300?random=21'] },
+            { date: '2024-04-20', title: 'Picnic in the Park', location: 'Mellat Park, Tehran', occasion: 'Sunshine and sandwiches', images: ['https://picsum.photos/400/300?random=22', 'https://picsum.photos/400/300?random=23'] },
+            { date: '2024-06-15', title: 'Second Anniversary', location: 'Weekend Getaway', occasion: 'Two years of adventures', images: ['https://picsum.photos/400/300?random=24'] },
+            { date: '2024-08-25', title: 'Beach Day', location: 'Kish Island, Iran', occasion: 'Sand between our toes', images: ['https://picsum.photos/400/300?random=25', 'https://picsum.photos/400/300?random=26'] },
+            { date: '2024-11-11', title: 'Random Adventure Day', location: 'Exploring Tehran', occasion: 'Getting lost together', images: ['https://picsum.photos/400/300?random=27'] },
+            { date: '2025-01-01', title: 'New Year Fireworks', location: 'Tajrish Square, Tehran', occasion: 'Another year together', images: ['https://picsum.photos/400/300?random=28', 'https://picsum.photos/400/300?random=29'] },
+            { date: '2025-03-15', title: 'Spring Festival', location: 'Golestan Palace, Tehran', occasion: 'Beauty all around us', images: ['https://picsum.photos/400/300?random=30'] }
+        ];
+
+        // ==================== MAP LOCATIONS ====================
+        const mapLocations = [
+            { lat: 35.6892, lng: 51.3890, title: 'First Meeting', type: 'first', desc: 'Where it all began' },
+            { lat: 35.7036, lng: 51.4065, title: 'Cafe Naderi', type: 'restaurant', desc: 'Our favorite coffee spot' },
+            { lat: 36.5659, lng: 51.9700, title: 'Shomal Trip', type: 'trip', desc: 'Beach memories' },
+            { lat: 35.6892, lng: 51.4000, title: 'Milad Tower', type: 'special', desc: 'Concert night' },
+            { lat: 35.7448, lng: 51.3753, title: 'Mellat Park', type: 'special', desc: 'Picnic day' },
+            { lat: 35.7153, lng: 51.4043, title: 'Golestan Palace', type: 'trip', desc: 'Spring festival' },
+            { lat: 26.5383, lng: 53.9784, title: 'Kish Island', type: 'trip', desc: 'Beach getaway' },
+            { lat: 35.8043, lng: 51.4331, title: 'Tajrish Square', type: 'special', desc: 'New Year fireworks' },
+        ];
+
+        // ==================== QUIZ QUESTIONS (20 QUESTIONS) ====================
+        const quizQuestions = [
+            { q: "What is Mahsa's favorite color?", options: ['Blue', 'Pink', 'Purple', 'Green'], correct: 1 },
+            { q: "What is her favorite food?", options: ['Pizza', 'Ghormeh Sabzi', 'Sushi', 'Pasta'], correct: 1 },
+            { q: "What is her dream travel destination?", options: ['Paris', 'Tokyo', 'New York', 'Santorini'], correct: 3 },
+            { q: "What is her favorite season?", options: ['Spring', 'Summer', 'Autumn', 'Winter'], correct: 0 },
+            { q: "What is her favorite movie genre?", options: ['Romance', 'Action', 'Comedy', 'Horror'], correct: 2 },
+            { q: "What is her favorite flower?", options: ['Rose', 'Tulip', 'Sunflower', 'Lily'], correct: 0 },
+            { q: "What is her zodiac sign?", options: ['Aries', 'Taurus', 'Gemini', 'Cancer'], correct: 1 },
+            { q: "What is her favorite hobby?", options: ['Reading', 'Painting', 'Dancing', 'Cooking'], correct: 0 },
+            { q: "What is her favorite ice cream flavor?", options: ['Chocolate', 'Vanilla', 'Strawberry', 'Mint'], correct: 2 },
+            { q: "What is her favorite music genre?", options: ['Pop', 'Classical', 'Jazz', 'Rock'], correct: 0 },
+            { q: "What is her favorite animal?", options: ['Cat', 'Dog', 'Rabbit', 'Bird'], correct: 0 },
+            { q: "What is her favorite book genre?", options: ['Mystery', 'Fantasy', 'Romance', 'Sci-Fi'], correct: 2 },
+            { q: "What is her favorite holiday?", options: ['Nowruz', 'Christmas', "Valentine's", 'Halloween'], correct: 0 },
+            { q: "What is her favorite drink?", options: ['Coffee', 'Tea', 'Juice', 'Soda'], correct: 1 },
+            { q: "What is her favorite sport?", options: ['Swimming', 'Tennis', 'Yoga', 'Running'], correct: 2 },
+            { q: "What is her favorite dessert?", options: ['Cake', 'Ice Cream', 'Baklava', 'Cookies'], correct: 2 },
+            { q: "What is her favorite time of day?", options: ['Morning', 'Afternoon', 'Evening', 'Night'], correct: 2 },
+            { q: "What is her favorite type of music instrument?", options: ['Piano', 'Guitar', 'Violin', 'Flute'], correct: 0 },
+            { q: "What is her favorite weather?", options: ['Sunny', 'Rainy', 'Snowy', 'Cloudy'], correct: 0 },
+            { q: "What makes her happiest?", options: ['Gifts', 'Quality Time', 'Words of Affirmation', 'Acts of Service'], correct: 1 }
+        ];
+
+        // ==================== SECTION NAVIGATION ====================
+        let currentSection = 0;
+        const totalSections = 8;
+
+        function showSection(index) {
+            document.querySelectorAll('.section').forEach(function(sec, i) {
+                sec.classList.toggle('active', i === index);
+            });
+            document.getElementById('sectionIndicator').textContent = (index + 1) + ' / ' + totalSections;
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSections - 1;
+            currentSection = index;
+
+            if (index === 3 && !window.mapInitialized) {
+                setTimeout(initMap, 100);
+            }
+        }
+
+        function nextSection() {
+            if (currentSection < totalSections - 1) {
+                showSection(currentSection + 1);
+            }
+        }
+
+        function prevSection() {
+            if (currentSection > 0) {
+                showSection(currentSection - 1);
+            }
+        }
+
+        function goToSection(index) {
+            showSection(index);
+        }
+
+        // ==================== CONFETTI & SPARKLES ====================
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#c5a059', '#e8d5a3', '#e8c4c4', '#d4a574', '#f5e6d3'];
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 6 + 's';
+                confetti.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                container.appendChild(confetti);
+            }
+        }
+
+        function createSparkles() {
+            const container = document.getElementById('sparkle-container');
+            for (let i = 0; i < 20; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = Math.random() * 100 + 'vw';
+                sparkle.style.top = Math.random() * 100 + 'vh';
+                sparkle.style.animationDelay = Math.random() * 2 + 's';
+                sparkle.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                container.appendChild(sparkle);
+            }
+        }
+
+        // ==================== COUNTDOWN ====================
+        function updateCountdown() {
+            const target = new Date(CONFIG.targetDate);
+            const now = new Date();
+            const diff = target - now;
+
+            if (diff <= 0) {
+                document.getElementById('cd-days').textContent = '00';
+                document.getElementById('cd-hours').textContent = '00';
+                document.getElementById('cd-minutes').textContent = '00';
+                document.getElementById('cd-seconds').textContent = '00';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        // ==================== TIMELINE ====================
+        function initTimeline() {
+            const container = document.getElementById('timelineContainer');
+            timelineEvents.forEach(function(event, index) {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+
+                const imagesHtml = event.images.map(function(img, i) {
+                    return '<img src="' + img + '" class="' + (i === 0 ? 'active' : '') + '" data-index="' + i + '">';
+                }).join('');
+
+                const dotsHtml = event.images.map(function(_, i) {
+                    return '<div class="slideshow-dot ' + (i === 0 ? 'active' : '') + '" data-timeline="' + index + '" data-slide="' + i + '"></div>';
+                }).join('');
+
+                item.innerHTML = 
+                    '<div class="timeline-node"></div>' +
+                    '<div class="timeline-content">' +
+                        '<div class="timeline-date">' + formatDate(event.date) + '</div>' +
+                        '<div class="timeline-title">' + event.title + '</div>' +
+                        '<div class="timeline-location">&#128205; ' + event.location + '</div>' +
+                        '<div style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 3px;">' + event.occasion + '</div>' +
+                        '<div class="timeline-slideshow" id="slideshow-' + index + '">' +
+                            imagesHtml +
+                            '<div class="slideshow-dots">' + dotsHtml + '</div>' +
+                        '</div>' +
+                    '</div>';
+                container.appendChild(item);
+
+                if (event.images.length > 1) {
+                    setInterval(function() {
+                        const slideshow = document.getElementById('slideshow-' + index);
+                        if (!slideshow) return;
+                        const current = slideshow.querySelectorAll('img.active');
+                        if (current.length > 0) {
+                            let nextIndex = (parseInt(current[0].dataset.index) + 1) % event.images.length;
+                            changeSlide(index, nextIndex);
+                        }
+                    }, 3000 + index * 500);
+                }
+            });
+
+            document.querySelectorAll('.slideshow-dot').forEach(function(dot) {
+                dot.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const tIdx = parseInt(this.dataset.timeline);
+                    const sIdx = parseInt(this.dataset.slide);
+                    changeSlide(tIdx, sIdx);
+                });
+            });
+        }
+
+        function changeSlide(timelineIndex, imageIndex) {
+            const slideshow = document.getElementById('slideshow-' + timelineIndex);
+            if (!slideshow) return;
+            slideshow.querySelectorAll('img').forEach(function(img, i) {
+                img.classList.toggle('active', i === imageIndex);
+            });
+            slideshow.querySelectorAll('.slideshow-dot').forEach(function(dot, i) {
+                dot.classList.toggle('active', i === imageIndex);
+            });
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        }
+
+        // ==================== MAP ====================
+        let map;
+        function initMap() {
+            if (window.mapInitialized) return;
+            map = L.map('map').setView([35.6892, 51.3890], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const colors = { first: '#c5a059', trip: '#e8c39e', special: '#e8c4c4', restaurant: '#a52a2a' };
+
+            mapLocations.forEach(function(loc) {
+                L.circleMarker([loc.lat, loc.lng], {
+                    radius: 10,
+                    fillColor: colors[loc.type],
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map)
+                .bindPopup('<b>' + loc.title + '</b><br>' + loc.desc);
+            });
+
+            window.mapInitialized = true;
+        }
+
+        // ==================== STATISTICS ====================
+        function initStats() {
+            const firstDate = new Date(CONFIG.firstDate);
+            const now = new Date();
+            const diffTime = Math.abs(now - firstDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffMonths = Math.floor(diffDays / 30.44);
+            const diffYears = Math.floor(diffDays / 365.25);
+
+            const birthDate = new Date(CONFIG.birthday);
+            const age = Math.floor((now - birthDate) / (1000 * 60 * 60 * 24 * 365.25));
+            document.getElementById('ageDisplay').textContent = age;
+
+            document.getElementById('firstDateDisplay').textContent = formatDate(CONFIG.firstDate);
+
+            const stats = [
+                { icon: '&#127769;', number: diffDays, label: 'Days Together' },
+                { icon: '&#127769;', number: Math.floor(diffDays * 0.3), label: 'Nights Together' },
+                { icon: '&#127800;', number: diffYears * 4 + Math.floor((diffMonths % 12) / 3), label: 'Seasons Shared' },
+                { icon: '&#128157;', number: Math.min(diffYears + (now.getMonth() >= 1 ? 1 : 0), 10), label: 'Valentines Together' },
+                { icon: '&#127874;', number: diffYears, label: 'Birthdays Together' },
+                { icon: '&#128197;', number: diffMonths, label: 'Months Together' },
+                { icon: '&#9749;', number: Math.floor(diffDays / 7 * 3), label: 'Coffee Dates' },
+                { icon: '&#127916;', number: Math.floor(diffDays / 14), label: 'Movies Watched' },
+                { icon: '&#128248;', number: Math.floor(diffDays * 2), label: 'Photos Together' },
+                { icon: '&#128139;', number: Math.floor(diffDays * 5), label: 'Kisses Shared' },
+                { icon: '&#128506;&#65039;', number: mapLocations.length, label: 'Places Visited' },
+                { icon: '&#9992;&#65039;', number: Math.floor(diffYears * 2), label: 'Trips Taken' },
+            ];
+
+            const grid = document.getElementById('statsGrid');
+            stats.forEach(function(stat) {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = 
+                    '<div class="stat-icon">' + stat.icon + '</div>' +
+                    '<span class="stat-number" data-target="' + stat.number + '">0</span>' +
+                    '<div class="stat-label">' + stat.label + '</div>';
+                grid.appendChild(card);
+            });
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        const numEl = entry.target.querySelector('.stat-number');
+                        animateNumber(numEl, parseInt(numEl.dataset.target));
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('.stat-card').forEach(function(card) {
+                observer.observe(card);
+            });
+        }
+
+        function animateNumber(el, target) {
+            let current = 0;
+            const increment = Math.ceil(target / 50);
+            const timer = setInterval(function() {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                el.textContent = current.toLocaleString();
+            }, 30);
+        }
+
+        // ==================== ENVELOPE ====================
+        function openEnvelope() {
+            const envelope = document.getElementById('envelope');
+            const letter = document.getElementById('letterContent');
+            envelope.classList.add('open');
+            setTimeout(function() {
+                letter.classList.add('show');
+            }, 600);
+        }
+
+        // ==================== VIDEO ====================
+        function handleVideoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                const wrapper = document.querySelector('.video-wrapper');
+                wrapper.innerHTML = '<video controls autoplay loop><source src="' + url + '" type="' + file.type + '"></video>';
+                document.querySelector('.video-caption').textContent = 'Your special video for Mahsa';
+            }
+        }
+
+        // ==================== QUIZ ====================
+        let currentQuestion = 0;
+        let mahsaAnswers = []; // Mahsa answers as she takes the quiz
+
+        function initQuiz() {
+            const container = document.getElementById('quizQuestions');
+            container.innerHTML = '';
+
+            quizQuestions.forEach(function(q, i) {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.style.display = i === 0 ? 'block' : 'none';
+                card.id = 'question-' + i;
+
+                const optionsHtml = q.options.map(function(opt, j) {
+                    return '<button class="option-btn" data-q="' + i + '" data-opt="' + j + '">' + opt + '</button>';
+                }).join('');
+
+                card.innerHTML = 
+                    '<div class="question-text">' + (i + 1) + '. ' + q.q + '</div>' +
+                    '<div class="options-grid">' + optionsHtml + '</div>';
+                container.appendChild(card);
+            });
+
+            document.querySelectorAll('.option-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const qIdx = parseInt(this.dataset.q);
+                    const optIdx = parseInt(this.dataset.opt);
+                    selectAnswer(qIdx, optIdx);
+                });
+            });
+
+            updateQuizNav();
+        }
+
+        function selectAnswer(qIndex, optionIndex) {
+            mahsaAnswers[qIndex] = optionIndex;
+            const card = document.getElementById('question-' + qIndex);
+            card.querySelectorAll('.option-btn').forEach(function(btn, i) {
+                btn.classList.toggle('selected', i === optionIndex);
+            });
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizQuestions.length - 1) {
+                document.getElementById('question-' + currentQuestion).style.display = 'none';
+                currentQuestion++;
+                document.getElementById('question-' + currentQuestion).style.display = 'block';
+                updateQuizNav();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                document.getElementById('question-' + currentQuestion).style.display = 'none';
+                currentQuestion--;
+                document.getElementById('question-' + currentQuestion).style.display = 'block';
+                updateQuizNav();
+            }
+        }
+
+        function updateQuizNav() {
+            document.getElementById('prevQBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextQBtn').textContent = 
+                currentQuestion === quizQuestions.length - 1 ? 'Finish' : 'Next';
+            document.getElementById('quizProgress').style.width = 
+                ((currentQuestion + 1) / quizQuestions.length * 100) + '%';
+        }
+
+        // Calculate score by comparing friend answers to Mahsa answers
+        function calculateFriendScore(friendAnswers, mahsaAnswers) {
+            let score = 0;
+            for (let i = 0; i < quizQuestions.length; i++) {
+                if (friendAnswers[i] === mahsaAnswers[i]) {
+                    score++;
+                }
+            }
+            return score;
+        }
+
+        function showResults() {
+            document.getElementById('quizQuestions').style.display = 'none';
+            document.getElementById('quizNav').style.display = 'none';
+            document.querySelector('.quiz-progress').style.display = 'none';
+
+            // Calculate Mahsa's score (how many she answered "correctly" based on herself - always 20/20)
+            // Actually we show how well friends guessed compared to Mahsa
+            const mahsaScore = quizQuestions.length; // She is the ground truth
+
+            // Calculate each friend's score by comparing to Mahsa's answers
+            const friendScores = CONFIG.friendAnswers.map(function(f) {
+                return {
+                    name: f.name,
+                    score: calculateFriendScore(f.answers, mahsaAnswers)
+                };
+            });
+
+            // Add Mahsa herself at the top
+            const allScores = [{ name: 'Mahsa (You)', score: mahsaScore }].concat(friendScores);
+            allScores.sort(function(a, b) { return b.score - a.score; });
+
+            const percent = (mahsaScore / quizQuestions.length) * 100;
+            document.getElementById('scoreText').textContent = mahsaScore + '/' + quizQuestions.length;
+            document.getElementById('scoreCircle').style.setProperty('--score-percent', percent + '%');
+
+            const comparisonDiv = document.getElementById('friendComparison');
+            comparisonDiv.innerHTML = '<h4 style="color: var(--gold-light); margin-bottom: 15px; font-family: Playfair Display, serif; text-align: center; font-size: 1.1rem;">Friend Guesses vs Mahsa</h4>';
+
+            allScores.forEach(function(s) {
+                const isMahsa = s.name === 'Mahsa (You)';
+                const row = document.createElement('div');
+                row.className = 'friend-row';
+                row.style.background = isMahsa ? 'rgba(197,160,89,0.25)' : 'rgba(255,255,255,0.05)';
+                row.style.border = isMahsa ? '1px solid rgba(197,160,89,0.4)' : '1px solid rgba(197,160,89,0.1)';
+                row.innerHTML = 
+                    '<span class="friend-name">' + (isMahsa ? '&#128081; ' : '') + s.name + '</span>' +
+                    '<div style="display: flex; align-items: center; gap: 10px;">' +
+                        '<div class="friend-bar">' +
+                            '<div class="friend-bar-fill" style="width: ' + ((s.score / 20) * 100) + '%"></div>' +
+                        '</div>' +
+                        '<span class="friend-score">' + s.score + '/20</span>' +
+                    '</div>';
+                comparisonDiv.appendChild(row);
+            });
+
+            document.getElementById('resultsContainer').classList.add('show');
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            mahsaAnswers = [];
+            document.getElementById('quizQuestions').style.display = 'block';
+            document.getElementById('quizNav').style.display = 'flex';
+            document.querySelector('.quiz-progress').style.display = 'block';
+            document.getElementById('resultsContainer').classList.remove('show');
+            initQuiz();
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('prevBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                prevSection();
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                nextSection();
+            });
+
+            document.getElementById('homeBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                goToSection(0);
+            });
+
+            document.getElementById('prevQBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                prevQuestion();
+            });
+
+            document.getElementById('nextQBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                nextQuestion();
+            });
+
+            document.getElementById('restartBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                restartQuiz();
+            });
+
+            document.getElementById('envelope').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openEnvelope();
+            });
+
+            document.getElementById('uploadBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('videoInput').click();
+            });
+
+            document.getElementById('videoInput').addEventListener('change', function(e) {
+                handleVideoUpload(e);
+            });
+
+            createConfetti();
+            createSparkles();
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            initTimeline();
+            initStats();
+            initQuiz();
+            showSection(0);
+        });
+
+        let touchStartY = 0;
+        let touchStartX = 0;
+        document.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+        });
+        document.addEventListener('touchend', function(e) {
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchEndX = e.changedTouches[0].clientX;
+            const diffY = touchStartY - touchEndY;
+            const diffX = touchStartX - touchEndX;
+
+            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 50) {
+                if (diffY > 0) {
+                    nextSection();
+                } else {
+                    prevSection();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
